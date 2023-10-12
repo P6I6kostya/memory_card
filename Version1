@@ -1,0 +1,162 @@
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+from random import *
+
+app = QApplication([])
+
+
+# win(окно)_Вопрос
+Question = QLabel("Сколько стоит криптовалюта сейчас?")
+QuestionGroup = QGroupBox("Варианты ответа:")
+btn_1 = QRadioButton("Что это?")
+btn_2 = QRadioButton("Много")
+btn_3 = QRadioButton("Мало")
+btn_4 = QRadioButton("Хз")
+
+Btn = QPushButton("Ответить")
+layout_ans1 = QHBoxLayout()
+layout_ans2 = QVBoxLayout()
+layout_ans3 = QVBoxLayout()
+
+layout_ans2.addWidget(btn_1)
+layout_ans2.addWidget(btn_2)
+layout_ans3.addWidget(btn_3)
+layout_ans3.addWidget(btn_4)
+
+layout_ans1.addLayout(layout_ans2)
+layout_ans1.addLayout(layout_ans3)
+
+QuestionGroup.setLayout(layout_ans1)
+
+line_1 = QHBoxLayout()
+line_2 = QHBoxLayout()
+line_3 = QHBoxLayout()
+
+line_1.addWidget(Question, alignment=Qt.AlignVCenter)
+line_2.addWidget(QuestionGroup)
+line_3.addWidget(Btn)
+
+layout_card = QVBoxLayout()
+layout_card.addLayout(line_1)
+layout_card.addLayout(line_2)
+layout_card.addLayout(line_3)
+
+Res = QLabel("Сколько стоит криптовалюта сейчас?")
+ResGroup = QGroupBox("Результат:")
+Correct = QLabel("Правильно!")
+total = QLabel("Много")
+Btn = QPushButton("Следующий вопрос")
+
+layout_res = QVBoxLayout()
+layout_res.addWidget(Correct, alignment=Qt.AlignTop)
+layout_res.addWidget(total, alignment=Qt.AlignCenter)
+ResGroup.setLayout(layout_res)
+
+line_res1=QHBoxLayout()
+line_res2 =QHBoxLayout()
+line_res3 = QHBoxLayout()
+
+line_res1.addWidget(Res, alignment= Qt.AlignCenter)
+line_res2.addWidget(ResGroup)
+line_res2.addWidget(QuestionGroup)
+ResGroup.hide()
+line_res3.addWidget(Btn)
+
+layout_card = QVBoxLayout()
+layout_card.addLayout(line_res1) 
+layout_card.addLayout(line_res2)
+layout_card.addLayout(line_res3)
+
+
+
+class QuestionC():
+    def __init__(self,q,right, wrong1, wrong2, wrong3):
+        self.q = q
+        self.right = right
+        self.wrong1 = wrong1
+        self.wrong2 = wrong2
+        self.wrong3 = wrong3
+
+
+QuestionL = []
+QuestionL.append(QuestionC("Какой национальности русский?", "русский", "американец", "немец", "швед"))
+QuestionL.append(QuestionC("Какой национальности КПА", "русский", "американец", "немец", "швед"))
+QuestionL.append(QuestionC("Какое самое любимое слово у Кости?", "Штукенция", "Константинополь", "RUSSSSSIA", "SIU!!!"))
+QuestionL.append(QuestionC("Сердце  компьютера", "процессор", "видеокарта","мышка", "монитор"))
+QuestionL.append(QuestionC("Кто?", "я...", "я?", "я!", "я@"))
+QuestionL.append(QuestionC("Кто лучше всего разбирается по матетматике?","Я", "Уля", "Не Уля", "Лена"))
+QuestionL.append(QuestionC("Какая планета или звезда самая яркая на нашем небе (кроме солнца)?", "Венера", "Сириус", "Юпитер", "Вега"))
+def show_res():
+    QuestionGroup.hide()
+    ResGroup.show()
+    Btn.setText('Следующий вопрос')
+
+def show_q():
+    ResGroup.hide()
+    QuestionGroup.show()
+    Btn.setText('Ответить')
+    RadioGroup.setExclusive(False)
+    btn_1.setChecked(False)
+    btn_2.setChecked(False)
+    btn_3.setChecked(False)
+    btn_4.setChecked(False)
+    RadioGroup.setExclusive(True)
+
+RadioGroup = QButtonGroup()
+RadioGroup.addButton(btn_1)
+RadioGroup.addButton(btn_2)
+RadioGroup.addButton(btn_3)
+RadioGroup.addButton(btn_4)
+answer = [btn_1, btn_2, btn_3, btn_4]
+
+def ask(q:QuestionC):
+    shuffle(answer)
+    answer[0].setText(q.right)
+    answer[1].setText(q.wrong1)
+    answer[2].setText(q.wrong2)
+    answer[3].setText(q.wrong3)
+    Res.setText(q.q)
+    total.setText(q.right)
+    show_q()
+
+def show_answer(res):
+    Correct.setText(res)
+    show_res()
+
+
+
+def check_answer():
+    if answer[0].isChecked():
+        show_answer('Верно!')
+        win.pravil += 1
+        print("Статистика:")
+        print("Кол-во вопросов:", win.score)
+        print("Рейтинг", win.pravil/win.score *100, "%")
+    else:
+        if answer[1].isChecked or answer[2].isChecked or answer[3].isChecked:
+            show_answer('Неверно!')
+            print("Статистика:")
+            print("Кол-во вопросов:", win.score)
+            print("Рейтинг", win.pravil/win.score *100, "%")
+
+
+def next_question(): 
+    win.score += 1
+    cur_question = randint(0, len(QuestionL)-1)
+    q =QuestionL[cur_question]
+    ask(q)
+
+def click():
+    if Btn.text() == "Ответить":
+        check_answer()
+    else:
+        next_question()
+Btn.clicked.connect(click)
+win = QWidget()
+win.setWindowTitle("Memory card")
+win.setLayout(layout_card)
+win.pravil = 0
+win.score = 0
+next_question()
+win.show()
+app.exec_()
